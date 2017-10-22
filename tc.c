@@ -318,15 +318,16 @@ char *strninput( char *myinitstring )
                   printw( " " );
                   attroff( A_REVERSE );
                   refresh() ; ch = getch();
-		  if ( ch == 127  ) 
+		  //if ( ch == 127  ) 
+		  if ( ch == KEY_BACKSPACE ) 
 		  {
-			   strncpy( strmsg, strcut( strmsg, 1 , strlen( strmsg ) -1 )  ,  PATH_MAX );
+		      strncpy( strmsg, strcut( strmsg, 1 , strlen( strmsg ) -1 )  ,  PATH_MAX );
 		  }
-		  else if ( ch == 4  ) 
+		  else if ( ch == 4 ) 
 		  {
 			   strncpy( strmsg, ""  ,  PATH_MAX );
 		  }
-		  else if ( ch == 27  ) 
+		  else if ( ch == 27 ) 
 		  {
 			   strncpy( strmsg, ""  ,  PATH_MAX );
 		  }
@@ -617,6 +618,7 @@ int main( int argc, char *argv[])
    initscr();
    //raw();  //ctrl+c is with raw() disabled.
    keypad(stdscr, true);
+   curs_set( 0 );
    noecho();
 
    start_color();
