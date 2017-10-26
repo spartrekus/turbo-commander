@@ -4,7 +4,6 @@
 ///  Turbo Commander
 ////////////////////////////
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -165,7 +164,7 @@ void mvlistprint(const char *name, int indent, char *searchitem )
               entryselnb++;
               if ( gameselection == entryselnb ) attron( A_REVERSE );
               color_set( 6, NULL );
-              mvprintw( posy++, 0 +1, "[%s]", entry->d_name );
+              mvprintw( posy++, 0 +1, "[%d] [%s]", entry->d_type, entry->d_name );
               if ( gameselection == entryselnb ) 
                   if ( strcmp( entry->d_name , "" ) != 0 )
                    strncpy( fileselection, entry->d_name , PATH_MAX );
@@ -183,7 +182,8 @@ void mvlistprint(const char *name, int indent, char *searchitem )
                  entryselnb++;
                  if ( gameselection == entryselnb ) attron( A_REVERSE );
                  color_set( 4, NULL );
-                 mvprintw( posy++, 0 +1, "%s", entry->d_name );
+                 //mvprintw( posy++, 0 +1, "%s", entry->d_name );
+                 mvprintw( posy++, 0 +1, "[%d] %s", entry->d_type, entry->d_name );
                  if ( gameselection == entryselnb ) 
                   if ( strcmp( entry->d_name , "" ) != 0 )
                    strncpy( fileselection, entry->d_name , PATH_MAX );
@@ -506,6 +506,54 @@ void naddclip( char *thefile )
 
 
 
+     void tc_file_mkdir( char *myfile )
+     {
+                    char cmdi[PATH_MAX];
+                    mvprintw( 0,0, "|Mkdir|");
+                    char fooline[PATH_MAX];
+                    strncpy( fooline , myfile , PATH_MAX );
+                    if ( strcmp(  fooline  , "" ) != 0 )
+                    {
+                       strncpy( cmdi, " mkdir -p  " , PATH_MAX );
+                       strncat( cmdi , "  " , PATH_MAX - strlen(cmdi) - 1);
+                       strncat( cmdi , " \"" , PATH_MAX - strlen(cmdi) - 1);
+                       strncat( cmdi , fooline  , PATH_MAX - strlen(cmdi) - 1);
+                       strncat( cmdi , "\"  " , PATH_MAX - strlen(cmdi) - 1);
+                       nruncmd( cmdi );
+                     }
+       }
+
+
+
+
+     void tc_run_sys_command( char *myfile )
+     {
+                    char cmdi[PATH_MAX];
+                    mvprintw( 0,0, "|System Command|");
+                    char fooline[PATH_MAX];
+                    strncpy( fooline , myfile , PATH_MAX );
+                    if ( strcmp(  fooline  , "" ) != 0 )
+                    {
+                       /*strncpy( cmdi, " mkfile  " , PATH_MAX );
+                       strncat( cmdi , "  " , PATH_MAX - strlen(cmdi) - 1);
+                       strncat( cmdi , " \"" , PATH_MAX - strlen(cmdi) - 1);
+                       strncat( cmdi , fooline  , PATH_MAX - strlen(cmdi) - 1);
+                       strncat( cmdi , "\"  " , PATH_MAX - strlen(cmdi) - 1);
+                       nruncmd( cmdi );*/
+                       printf( "Ext. Sys Command: %s\n", fooline );
+                       nruncmd( fooline );
+                     }
+       }
+
+
+
+
+
+
+
+
+
+
      void tc_file_mkfile( char *myfile )
      {
                     char cmdi[PATH_MAX];
@@ -662,19 +710,35 @@ int main( int argc, char *argv[])
 
            else if ( ch == '2' ) tc_file_rename( fileselection );
            else if ( ch == '5' ) tc_file_copy( "."  , fileselection );
+
+           else if ( ch == '$' ) 
+           {
+                    mvprintw( 0,0, "|Run Bash System Command|");
+                    tc_run_sys_command( strninput( "" ) );
+           }
+
            else if ( ch == '7' ) 
            {
                     mvprintw( 0,0, "|Mkfile|");
                     tc_file_mkfile( strninput( "" ) );
            }
-           else if ( ch == 's' ) { nrunwith( " feh  " , fileselection  ); }
+           else if ( ch == '8' ) 
+           {
+                    mvprintw( 0,0, "|Mkdir|");
+                    tc_file_mkdir( strninput( "" ) );
+           }
 
-           else if ( ch == 'o' ) { nrunwith( " mupdf " , fileselection  ); }
-           else if ( ch == 'r' ) { nrunwith( " ncview " , fileselection  ); }
-           else if ( ch == 'R' ) { nrunwith( " less " , fileselection  ); }
-           else if ( ch == 'p' ) { nrunwith( " mupdf " , fileselection  ); }
-           else if ( ch == 'o' ) { nrunwith( " mupdf " , fileselection  ); }
+           else if ( ch == 'o' ) { mvprintw(0,0,"chdir"); chdir( strninput( "" ) ); }
+
+           else if ( ch == 's' ) { nrunwith( " feh  " , fileselection  ); }
+           //else if ( ch == 'o' ) { nrunwith( " mupdf " , fileselection  ); }
+
+           else if ( ch == 'p' ) { nrunwith( " tcview " , fileselection  ); }
+           else if ( ch == 'r' ) { nrunwith( " tcview " , fileselection  ); }
+           else if ( ch == 'R' ) { nrunwith( " ncview " , fileselection  ); }
+           else if ( ch == 'P' ) { nrunwith( " mupdf " , fileselection  ); }
            else if ( ch == 'v' ) { nrunwith( " vim  " , fileselection  ); }
+           else if ( ch == 't' ) { nrunwith( " tim  " , fileselection  ); }
            else if ( ch == 'x' ) { nrunwith( " xpaint " , fileselection  ); }
 
           //////////////////////////////
@@ -728,6 +792,13 @@ int main( int argc, char *argv[])
            else if ( ch == 'j' ) 
                gameselection++; 
            else if ( ch == 'g' ) gameselection = 1;
+
+         else if ( ch == '?' )
+         {
+             erase();
+             mvprintw( 1, 0 , "|TC| " );
+             getch();
+         }
 
 
            else if ( ch == 'u' ) gameselection-=4;  
