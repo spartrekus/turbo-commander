@@ -163,8 +163,9 @@ void mvlistprint(const char *name, int indent, char *searchitem )
            dircondition = 1; 
         else if ( entry->d_type == 0 ) 
          if ( gamedirfcheck == 1 )
-          if ( fexist( entry->d_name ) == 2 )
-            dircondition = 1;
+          if ( posy <= rows-3 )
+           if ( fexist( entry->d_name ) == 2 )
+               dircondition = 1;
 
         if ( dircondition == 1 )
 	{
