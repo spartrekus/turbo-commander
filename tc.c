@@ -118,8 +118,11 @@ return fileordir;
 int rows, cols;  
 int nconsole_explorer = 1;
 int gameselection = 1;
+int gamescrolly = 0;
 char gamefilter[PATH_MAX];
 char fileselection[PATH_MAX];
+
+
 
 void selectioninit()
 {
@@ -132,6 +135,7 @@ void selectioninit()
 
 
 
+/////////////////// MAIN LIST FILES (MVPRINTW)
 void mvlistprint(const char *name, int indent, char *searchitem )
 {
     int posy = 1; 
@@ -143,12 +147,17 @@ void mvlistprint(const char *name, int indent, char *searchitem )
     if (!(dir = opendir(name)))
         return;
 
-    int entryselnb = 0;
+    int entryselnb = 0; 
+    unsigned int entrycounter = 0;
     while ((entry = readdir(dir)) != NULL) 
     {
         attroff( A_REVERSE );
+        entrycounter++;
 
-        if (entry->d_type == DT_DIR) 
+        if ( entrycounter <= gamescrolly )
+                continue;
+
+        if ( entry->d_type == DT_DIR ) 
 	{
             char path[1024];
 
@@ -190,6 +199,7 @@ void mvlistprint(const char *name, int indent, char *searchitem )
               }
 	    }
         }
+
     }
     closedir(dir);
 }
@@ -387,80 +397,6 @@ char *strninput( char *myinitstring )
 
 
 
-void drawit()
-{
-        int fooj; 
-        char foocwd[PATH_MAX];
-        getmaxyx( stdscr, rows, cols);
-        color_set( 2 , NULL );
-        attroff( A_REVERSE );
-        erase();  
-
-
-        mvprintw( 0, 0, "|CONSOLE|" );
-        color_set( 2 , NULL );
-        attroff( A_REVERSE );
-
-        if ( nconsole_explorer == 1 )
-        {
-           selectioninit();
-           mvlistprint( ".", 0 , gamefilter ) ;
-        }
-
-
-        // bottom bar
-        color_set( 15 , NULL );
-        attron( A_REVERSE );
-        for ( fooj = 0 ; fooj <= cols-1;  fooj++)
-        {
-            mvaddch( rows-2, fooj , ' ' );
-            mvaddch( 0, fooj , ' ' );
-        }
-        mvprintw( rows-2, 0 , "|%s|", fileselection );
-        if ( strcmp( gamefilter, "" ) != 0 ) 
-          printw( "Filter|" );
-        else
-          printw( "*|" );
-
-        // top bar
-        color_set( 15 , NULL );
-        attron( A_REVERSE );
-        mvprintw( 0, 0 , "|%s|", " TC " );
-
-        move( rows-1, 0 );
-        color_set( 0 , NULL );
-        attroff( A_REVERSE );
-        mvprintw( rows-1, 0, "%s", getcwd( foocwd, PATH_MAX ) );
-
-        move( rows-1, 0 );
-        color_set( 2 , NULL );
-        attroff( A_REVERSE );
-}
-
-
-void makro_create_slides()
-{
-   FILE *fp;
-   fp = fopen( "slides.bmr" , "ab+" );
-         fputs( "!include{beamer.mrk}\n" , fp );
-         fputs( "!beamer\n" , fp );
-         fputs( "!title Slides\n" , fp );
-         fputs( "!author Username\n" , fp );
-         fputs( "!gpath{figs/}\n" , fp );
-         fputs( "!begin\n" , fp );
-         fputs( "!cover\n" , fp );
-         fputs( "!clr\n" , fp );
-         fputs( "= Header\n" , fp );
-         fputs( "> line1\n" , fp );
-         fputs( "- item1\n" , fp );
-         fputs( "- item2\n" , fp );
-         fputs( "\n" , fp );
-         fputs( "!enddoc\n" , fp );
-   fclose( fp );
-}
-
-
-
 ///////////////////////////////
 ///////////////////////////////
 void nappendclip( char *thefile )
@@ -628,6 +564,62 @@ void naddclip( char *thefile )
 
 
 
+void drawit()
+{
+        if ( gameselection <= 0 ) gameselection = 0;
+        if ( gamescrolly <= 0 )   gamescrolly = 0;
+        int fooj; 
+        char foocwd[PATH_MAX];
+        getmaxyx( stdscr, rows, cols);
+        color_set( 2 , NULL );
+        attroff( A_REVERSE );
+        erase();  
+
+
+        mvprintw( 0, 0, "|CONSOLE|" );
+        color_set( 2 , NULL );
+        attroff( A_REVERSE );
+
+        if ( nconsole_explorer == 1 )
+        {
+           selectioninit();
+           mvlistprint( ".", 0 , gamefilter ) ;
+        }
+
+
+        // bottom bar
+        color_set( 15 , NULL );
+        attron( A_REVERSE );
+        for ( fooj = 0 ; fooj <= cols-1;  fooj++)
+        {
+            mvaddch( rows-2, fooj , ' ' );
+            mvaddch( 0, fooj , ' ' );
+        }
+        mvprintw( rows-2, 0 , "|%s|", fileselection );
+        if ( strcmp( gamefilter, "" ) != 0 ) 
+          printw( "Filter|" );
+        else
+          printw( "*|" );
+        printw( "%d|", gameselection );
+        printw( "%d|", gamescrolly );
+
+        // top bar
+        color_set( 15 , NULL );
+        attron( A_REVERSE );
+        mvprintw( 0, 0 , "|%s|", " TC " );
+
+        move( rows-1, 0 );
+        color_set( 0 , NULL );
+        attroff( A_REVERSE );
+        mvprintw( rows-1, 0, "%s", getcwd( foocwd, PATH_MAX ) );
+
+        move( rows-1, 0 );
+        color_set( 2 , NULL );
+        attroff( A_REVERSE );
+}
+
+
+
 
 
 
@@ -728,10 +720,11 @@ int main( int argc, char *argv[])
                     tc_file_mkdir( strninput( "" ) );
            }
 
-           else if ( ch == 'o' ) { mvprintw(0,0,"chdir"); chdir( strninput( "" ) ); }
+
+           else if ( ch == 'o' ) { nrunwith( " mupdf " , fileselection  ); }
+           else if ( ch == 'c' ) { mvprintw(0,0,"chdir"); chdir( strninput( "" ) ); }
 
            else if ( ch == 's' ) { nrunwith( " feh  " , fileselection  ); }
-           //else if ( ch == 'o' ) { nrunwith( " mupdf " , fileselection  ); }
 
            else if ( ch == 'p' ) { nrunwith( " tcview " , fileselection  ); }
            else if ( ch == 'r' ) { nrunwith( " tcview " , fileselection  ); }
@@ -778,20 +771,32 @@ int main( int argc, char *argv[])
 
           else if ( ch == '!' ) { nrunwith( strninput( "" ) , fileselection  ); }
 
+           else if ( ch == 'g' ) 
+           {  mvprintw( rows-1, cols-1, "g" );
+              ch = getch(); 
+              if ( ch == 'o' ) { chdir( strninput( "" ) ); gameselection = 1;  }
+              else if ( ch == 'g' ) { gameselection = 1; gamescrolly = 0 ; }
+           }
+
+
            else if ( ch == 'm' ) 
-           {
+           {  mvprintw( rows-1, cols-1, "m" );
               ch = getch(); 
               if ( ch == 'o' ) { chdir( strninput( "" ) ); gameselection = 1;  }
            }
 
-           else if ( ch == 'h' ) { chdir( ".." ); gameselection = 1;  }
-           else if ( ch == 'l' ) { chdir( fileselection ); gameselection=1; }
+           else if ( ch == 'h' ) { chdir( ".." ); 
+             strncpy( gamefilter,  "" , PATH_MAX );
+             gameselection = 1;  }
+           else if ( ch == 'l' )
+            { chdir( fileselection ); 
+             strncpy( gamefilter,  "" , PATH_MAX );
+             gameselection=1; }
 
            else if ( ch == 'k' ) 
                gameselection--;
            else if ( ch == 'j' ) 
                gameselection++; 
-           else if ( ch == 'g' ) gameselection = 1;
 
          else if ( ch == '?' )
          {
@@ -800,9 +805,13 @@ int main( int argc, char *argv[])
              getch();
          }
 
+           else if ( ch == KEY_PPAGE )   gamescrolly-=4;  
+           else if ( ch == KEY_NPAGE )   gamescrolly+=4; 
+           else if ( ch == 'u' )   gamescrolly-=4;  
+           else if ( ch == 'd' )   gamescrolly+=4; 
 
-           else if ( ch == 'u' ) gameselection-=4;  
-           else if ( ch == 'd' ) gameselection+=4; 
+           //else if ( ch == 'u' ) gameselection-=4;  
+           //else if ( ch == 'd' ) gameselection+=4; 
 
            else if ( ch == 'f' ) 
            {
