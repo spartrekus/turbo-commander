@@ -119,6 +119,7 @@ int rows, cols;
 int nconsole_explorer = 1;
 int gameselection = 1;
 int gamescrolly = 0;
+int gamedirfcheck = 0;
 char gamefilter[PATH_MAX];
 char fileselection[PATH_MAX];
 
@@ -147,17 +148,25 @@ void mvlistprint(const char *name, int indent, char *searchitem )
     if (!(dir = opendir(name)))
         return;
 
-    int entryselnb = 0; 
+    int entryselnb = 0;  int dircondition ; 
     unsigned int entrycounter = 0;
     while ((entry = readdir(dir)) != NULL) 
     {
         attroff( A_REVERSE );
+
         entrycounter++;
-
         if ( entrycounter <= gamescrolly )
-                continue;
+              continue;
 
+        dircondition = 0; 
         if ( entry->d_type == DT_DIR ) 
+           dircondition = 1; 
+        else if ( entry->d_type == 0 ) 
+         if ( gamedirfcheck == 1 )
+          if ( fexist( entry->d_name ) == 2 )
+            dircondition = 1;
+
+        if ( dircondition == 1 )
 	{
             char path[1024];
 
@@ -787,11 +796,12 @@ int main( int argc, char *argv[])
 
            else if ( ch == 'h' ) { chdir( ".." ); 
              strncpy( gamefilter,  "" , PATH_MAX );
-             gameselection = 1;  }
+             gameselection = 1;  gamescrolly = 0 ;  }
+
            else if ( ch == 'l' )
             { chdir( fileselection ); 
              strncpy( gamefilter,  "" , PATH_MAX );
-             gameselection=1; }
+             gameselection=1;   gamescrolly = 0;   }
 
            else if ( ch == 'k' ) 
                gameselection--;
@@ -809,6 +819,7 @@ int main( int argc, char *argv[])
            else if ( ch == KEY_NPAGE )   gamescrolly+=4; 
            else if ( ch == 'u' )   gamescrolly-=4;  
            else if ( ch == 'd' )   gamescrolly+=4; 
+           else if ( ch == 'n' )   gamescrolly+=4; 
 
            //else if ( ch == 'u' ) gameselection-=4;  
            //else if ( ch == 'd' ) gameselection+=4; 
@@ -825,6 +836,14 @@ int main( int argc, char *argv[])
 
            else if ( ch ==  'y' ) naddclip( fileselection );
            else if ( ch ==  'Y' ) nappendclip( fileselection );
+
+           else if ( ch ==  '%' ) 
+           {
+               if ( gamedirfcheck == 0 )
+                   gamedirfcheck = 1; 
+               else
+                   gamedirfcheck = 0;
+           }
 
  
     }
