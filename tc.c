@@ -119,7 +119,7 @@ int rows, cols;
 int nconsole_explorer = 1;
 int gameselection = 1;
 int gamescrolly = 0;
-int gamedirfcheck = 0;
+int gamedirfcheck = 1;
 char gamefilter[PATH_MAX];
 char fileselection[PATH_MAX];
 
@@ -762,7 +762,7 @@ int main( int argc, char *argv[])
           {
            mvprintw( 0, 0, "|APPS: (f)eh; (l)ess; less (a); (n)ano; (b)ash; (v)im;|");
            mvprintw( 1, 0, "|APPS: m(p)layer; (m)pg123;|");
-           mvprintw( 2, 0, "|APPS: (o) open with mupdf;|");
+           mvprintw( 2, 0, "|APPS: (o) open with mupdf;(t) pdftotext;|");
            mvprintw( 3, 0, "|APPS: (e)xplorer ROX; |");
            ch = getch(); 
            if ( ch == 'f' ) { nrunwith( " feh  " , fileselection  ); }
@@ -770,6 +770,7 @@ int main( int argc, char *argv[])
            else if ( ch == 'e' ) { nruncmd( " screen -d -m rox " ); }
            else if ( ch == 'o' ) { nrunwith( " screen -d -m mupdf " , fileselection  ); }
            else if ( ch == 'a' ) { nrunwith( " less " , fileselection  ); }
+           else if ( ch == 't' ) { nrunwith( " pdftotext " , fileselection  ); }
            else if ( ch == 'l' ) { nrunwith( " less " , fileselection  ); }
            else if ( ch == 'n' ) { nrunwith( " nano  " , fileselection  ); }
            else if ( ch == 'p' ) { nrunwith( " mplayer ", fileselection  ); }
