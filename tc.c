@@ -24,6 +24,8 @@
 
 
 char searchitem[PATH_MAX];
+int  tc_show_hidden = 0; 
+
 void listdir(const char *name, int indent)
 {
     DIR *dir;
@@ -40,6 +42,7 @@ void listdir(const char *name, int indent)
 
             if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
                 continue;
+
 
             snprintf( path, sizeof(path), "%s/%s", name, entry->d_name);
             //printf("%*s[%s]\n", indent, "", entry->d_name);
@@ -174,6 +177,10 @@ void mvlistprint(const char *name, int indent, char *searchitem )
             if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
                 continue;
 
+            if ( tc_show_hidden == 0 )
+             if ( entry->d_name[0] ==  '.' ) 
+                continue;
+
             snprintf( path, sizeof(path), "%s/%s", name, entry->d_name);
 
             //listdir( path, indent + 2);
@@ -192,8 +199,15 @@ void mvlistprint(const char *name, int indent, char *searchitem )
         } 
 	else 
 	{
+
+            if ( tc_show_hidden == 0 )
+              if ( entry->d_name[0] ==  '.' ) 
+                continue;
+
 	    if ( strstr( entry->d_name , searchitem ) != 0 ) 
 	    {
+
+
               //printf("DIR %s\n", name );
               //printf("%*s- %s\n", indent, "", entry->d_name);
               if ( posy <= rows-3 )
@@ -846,6 +860,15 @@ int main( int argc, char *argv[])
                else
                    gamedirfcheck = 0;
            }
+
+           else if ( ch ==  '&' ) 
+           {
+               if ( tc_show_hidden == 0 )
+                   tc_show_hidden = 1; 
+               else
+                   tc_show_hidden = 0;
+           }
+
 
  
     }
