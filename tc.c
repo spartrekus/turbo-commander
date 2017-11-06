@@ -645,7 +645,62 @@ void drawit()
 
 
 
+char *fbasenoext(char* mystr)
+{
+    char *retstr;
+    char *lastdot;
+    if (mystr == NULL)
+         return NULL;
+    if ((retstr = malloc (strlen (mystr) + 1)) == NULL)
+        return NULL;
+    strcpy (retstr, mystr);
+    lastdot = strrchr (retstr, '.');
+    if (lastdot != NULL)
+        *lastdot = '\0';
+    return retstr;
+}
 
+
+
+
+
+//////////////////////////////
+//////////////////////////////
+//////////////////////////////
+//////////////////////////////
+void nrun_openextension( char *theapp , char *thefile , char *theextension)
+{
+       def_prog_mode();
+       endwin();
+       ///////
+         char targetfile[PATH_MAX];
+         char cmdi[PATH_MAX];
+
+         strncpy( targetfile, fbasenoext( thefile ) , PATH_MAX );
+         //strncat( targetfile , ".pdf" , PATH_MAX - strlen( targetfile ) -1 );
+         strncat( targetfile , "." , PATH_MAX - strlen( targetfile ) -1 );
+         strncat( targetfile , theextension , PATH_MAX - strlen( targetfile ) -1 );
+
+         strncpy( cmdi , theapp , PATH_MAX );
+         //strncpy( cmdi , " screen -d -m mupdf  " , PATH_MAX );
+         strncat( cmdi , "  \"" , PATH_MAX - strlen( cmdi ) -1 );
+         strncat( cmdi , targetfile , PATH_MAX - strlen( cmdi ) -1 );
+         strncat( cmdi , "\"  " , PATH_MAX - strlen( cmdi ) -1 );
+         strncat( cmdi , " " , PATH_MAX - strlen( cmdi ) -1 );
+         system( cmdi );
+       ////////////////////////
+       reset_prog_mode();
+
+}
+
+
+void tc_yline( int liy )
+{
+      int fooxy = 0;
+      getmaxyx( stdscr, rows, cols);
+      for( fooxy = 0 ; fooxy <= cols- 1 ; fooxy++) 
+         mvprintw( liy , fooxy, " " );
+}
 
 
 
@@ -764,15 +819,29 @@ int main( int argc, char *argv[])
           else if ( ch ==  'm' ) 
           {
               mvprintw( 0,0, "[m]" );
+              printw( " [d:chdir][o:mupdf]" );
               ch = getch();
               if ( ch ==  '$' )      nruncmd( " bash " );
               else if ( ch ==  'c' ) nruncmd( " bash " );
               else if ( ch ==  'b' ) nruncmd( " bash " );
               else if ( ch ==  'v' ) { nrunwith( " vim  " , fileselection  ); }
+              else if ( ch == 'o' )  { nrun_openextension( " screen -d -m mupdf ", fileselection , "pdf"  ); }
+
+             else if ( ch == 'd' )
+             { 
+              tc_yline(0);
+              mvprintw(0, 0, "CHDIR(?)" );
+              chdir( strninput( "" ) ); 
+              strncpy( gamefilter,  "" , PATH_MAX );
+              gameselection=1;   gamescrolly = 0;   
+             }
+
+
           }
 
+
+
           else if  ( ( ch == 'a' ) )
-          // || ( ch == 'm' ) )
           {
            mvprintw( 0, 0, "|APPS: (f)eh; (l)ess; less (a); (n)ano; (b)ash; (v)im;|");
            mvprintw( 1, 0, "|APPS: m(p)layer; (m)pg123;|");
@@ -787,8 +856,8 @@ int main( int argc, char *argv[])
            else if ( ch == 't' ) { nrunwith( " pdftotext " , fileselection  ); }
            else if ( ch == 'l' ) { nrunwith( " less " , fileselection  ); }
            else if ( ch == 'n' ) { nrunwith( " nano  " , fileselection  ); }
-           else if ( ch == 'p' ) { nrunwith( " mplayer ", fileselection  ); }
-           else if ( ch == 'm' ) { nrunwith( " mpg123 " , fileselection ); }
+           else if ( ch == 'p' ) { nrunwith( " mplayer -fs -zoom ", fileselection  ); }
+           else if ( ch == 'P' ) { nrunwith( " mplayer -fs -zoom -ao null ", fileselection  ); }
            else if ( ch == 'v' ) nvim( fileselection );
            else if ( ch == 'b' ) { nruncmd( " bash "  ); }
            else if ( ch == 'e' ) { nruncmd( " rox "  ); }
@@ -804,18 +873,14 @@ int main( int argc, char *argv[])
            }
 
 
-           else if ( ch == 'm' ) 
-           {  mvprintw( rows-1, cols-1, "m" );
-              ch = getch(); 
-              if ( ch == 'o' ) { chdir( strninput( "" ) ); gameselection = 1;  }
-           }
 
            else if ( ch == 'h' ) { chdir( ".." ); 
              strncpy( gamefilter,  "" , PATH_MAX );
              gameselection = 1;  gamescrolly = 0 ;  }
 
            else if ( ch == 'l' )
-            { chdir( fileselection ); 
+            { 
+             chdir( fileselection ); 
              strncpy( gamefilter,  "" , PATH_MAX );
              gameselection=1;   gamescrolly = 0;   }
 
