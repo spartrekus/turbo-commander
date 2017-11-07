@@ -22,7 +22,6 @@
 #include <dirent.h>
 
 
-
 char searchitem[PATH_MAX];
 int  tc_show_hidden = 0; 
 
@@ -124,6 +123,7 @@ int gameselection = 1;
 int gamescrolly = 0;
 int gamedirfcheck = 1;
 char gamefilter[PATH_MAX];
+char gamefilter_previous[PATH_MAX];
 char fileselection[PATH_MAX];
 
 
@@ -707,7 +707,8 @@ void tc_yline( int liy )
 ///////////////////////////////////////////////////////////
 int main( int argc, char *argv[])
 {
-
+    strncpy( gamefilter, "", PATH_MAX );
+    strncpy( gamefilter_previous, "", PATH_MAX );
 
     ////////////////////////////////////////////////////////
     if ( argc == 2)
@@ -873,16 +874,34 @@ int main( int argc, char *argv[])
            }
 
 
-
-           else if ( ch == 'h' ) { chdir( ".." ); 
+           else if (( ch == 'h' ) || ( ch == '<' ))
+           {
+              chdir( ".." ); 
              strncpy( gamefilter,  "" , PATH_MAX );
-             gameselection = 1;  gamescrolly = 0 ;  }
+             gameselection = 1;  gamescrolly = 0 ;  
+           }
 
-           else if ( ch == 'l' )
-            { 
+           else if (( ch == 'l' ) || ( ch == '>' ))
+           { 
+             strncpy( gamefilter_previous , gamefilter , PATH_MAX );
              chdir( fileselection ); 
              strncpy( gamefilter,  "" , PATH_MAX );
-             gameselection=1;   gamescrolly = 0;   }
+             strncpy( gamefilter,  "" , PATH_MAX );
+             gameselection=1;   gamescrolly = 0;   
+           }
+
+
+           else if ( ch == 'F' ) 
+           {
+             strncpy( gamefilter , gamefilter_previous, PATH_MAX );
+             gameselection=1; 
+           }
+           else if ( ch == 'f' ) 
+           {
+             strncpy( gamefilter_previous , gamefilter , PATH_MAX );
+             strncpy( gamefilter, strninput( "" ) , PATH_MAX );
+             gameselection=1; 
+           }
 
            else if ( ch == 'k' ) 
                gameselection--;
@@ -902,19 +921,8 @@ int main( int argc, char *argv[])
            else if ( ch == 'd' )   gamescrolly+=4; 
            else if ( ch == 'n' )   gamescrolly+=4; 
 
-           //else if ( ch == 'u' ) gameselection-=4;  
-           //else if ( ch == 'd' ) gameselection+=4; 
-
-           else if ( ch == 'f' ) 
-           {
-             strncpy( gamefilter, strninput( "" ), PATH_MAX );
-             gameselection=1; 
-           }
 
            else if ( ch ==  32 )  strncpy( gamefilter, "" , PATH_MAX );
-           // else if ( ch ==  'c' ) nruncmd( " bash " );
-           // else if ( ch ==  'b' ) nruncmd( " echo build ; make " );
-
            else if ( ch ==  'y' ) naddclip( fileselection );
            else if ( ch ==  'Y' ) nappendclip( fileselection );
 
