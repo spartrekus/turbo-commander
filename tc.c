@@ -389,6 +389,7 @@ char *strninput( char *myinitstring )
 		        || (( ch == '$' ) ) 
 		        || (( ch == '%' ) ) 
 		        || (( ch == '-' ) ) 
+		        || (( ch == ',' ) ) 
 		        || (( ch == '{' ) ) 
 		        || (( ch == '}' ) ) 
 		        || (( ch == '(' ) ) 
@@ -845,22 +846,33 @@ int main( int argc, char *argv[])
           else if  ( ( ch == 'a' ) )
           {
            mvprintw( 0, 0, "|APPS: (f)eh; (l)ess; less (a); (n)ano; (b)ash; (v)im;|");
-           mvprintw( 1, 0, "|APPS: m(p)layer; (m)pg123;|");
-           mvprintw( 2, 0, "|APPS: (o) open with mupdf;(t) pdftotext;|");
-           mvprintw( 3, 0, "|APPS: (e)xplorer ROX; |");
+           mvprintw( 1, 0, "|APPS: m(p)layer; (m)pg123; (M)pg123 mp3s|");
+           mvprintw( 2, 0, "|APPS: (o) open with mupdf; (o) pdftotext;|");
+           mvprintw( 3, 0, "|APPS: (v)im; (t)im editor|");
+           mvprintw( 4, 0, "|APPS: (e)xplorer tcexp; |");
+           mvprintw( 5, 0, "|APPS: (r) tcview (reader); |");
+           mvprintw( 6, 0, "|APPS: (T) setterm; |");
            ch = getch(); 
-           if ( ch == 'f' ) { nrunwith( " feh  " , fileselection  ); }
+           if ( ch == 'f' )      { nrunwith( " feh  " , fileselection  ); }
            else if ( ch == 32 )  { chdir( getenv( "HOME" ) ); gameselection = 1;  }
-           else if ( ch == 'e' ) { nruncmd( " screen -d -m rox " ); }
+           else if ( ch == 'r' ) { nruncmd( " tcview " ); }
+           else if ( ch == 'e' ) { nruncmd( "  tcexp " ); }
            else if ( ch == 'o' ) { nrunwith( " screen -d -m mupdf " , fileselection  ); }
            else if ( ch == 'a' ) { nrunwith( " less " , fileselection  ); }
-           else if ( ch == 't' ) { nrunwith( " pdftotext " , fileselection  ); }
+           else if ( ch == 'v' ) { nvim( fileselection ); }
+
+           else if ( ch == 't' ) { nrunwith( " tim  " , fileselection  ); }
            else if ( ch == 'l' ) { nrunwith( " less " , fileselection  ); }
            else if ( ch == 'n' ) { nrunwith( " nano  " , fileselection  ); }
+
            else if ( ch == 'p' ) { nrunwith( " mplayer -fs -zoom ", fileselection  ); }
            else if ( ch == 'P' ) { nrunwith( " mplayer -fs -zoom -ao null ", fileselection  ); }
-           else if ( ch == 'v' ) nvim( fileselection );
+
+           else if ( ch == 'm' ) { nrunwith( " mpg123 ", fileselection  ); }
+           else if ( ch == 'M' ) { nrunwith( " mpg123 *.mp3 ", fileselection  ); }
+           else if ( ch == 'T' ) { nruncmd( " setterm -powersave off -blank 0 " ); }
            else if ( ch == 'b' ) { nruncmd( " bash "  ); }
+           else if ( ch == '$' ) { nruncmd( " bash "  ); }
            else if ( ch == 'e' ) { nruncmd( " rox "  ); }
           }
 
@@ -872,7 +884,6 @@ int main( int argc, char *argv[])
               if ( ch == 'o' ) { chdir( strninput( "" ) ); gameselection = 1;  }
               else if ( ch == 'g' ) { gameselection = 1; gamescrolly = 0 ; }
            }
-
 
            else if (( ch == 'h' ) || ( ch == '<' ))
            {
